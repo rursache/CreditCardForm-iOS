@@ -31,7 +31,7 @@ public class CreditCardFormView : UIView {
     fileprivate var backLine: UIView         = UIView(frame: .zero)
     fileprivate var cvc: AKMaskField         = AKMaskField(frame: .zero)
     fileprivate var chipImg: UIImageView     = UIImageView(frame: .zero)
-    fileprivate var amex                    = false
+    var amex                    = false
     
     public var colors = [String : [UIColor]]()
     
