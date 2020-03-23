@@ -31,7 +31,7 @@ public class CreditCardFormView : UIView {
     fileprivate var backLine: UIView         = UIView(frame: .zero)
     fileprivate var cvc: AKMaskField         = AKMaskField(frame: .zero)
     fileprivate var chipImg: UIImageView     = UIImageView(frame: .zero)
-    var amex                    = false
+    fileprivate var amex                    = false
     
     public var colors = [String : [UIColor]]()
     
@@ -385,6 +385,10 @@ public class CreditCardFormView : UIView {
                           duration: 0.7,
                           options: [UIView.AnimationOptions.transitionFlipFromRight, UIView.AnimationOptions.showHideTransitionViews],
                           completion: nil)
+    }
+    
+    public func isAmex() -> Bool {
+        return self.amex
     }
     
     public func paymentCardTextFieldDidChange(cardNumber: String? = "", expirationYear: UInt, expirationMonth: UInt, cvc: String? = "") {
