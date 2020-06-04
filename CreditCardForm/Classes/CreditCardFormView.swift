@@ -36,6 +36,9 @@ public class CreditCardFormView : UIView {
     public var colors = [String : [UIColor]]()
     
     @IBInspectable
+    public var handleLayerManually: Bool = false
+    
+    @IBInspectable
     public var defaultCardColor: UIColor = UIColor.hexStr(hexStr: "363434", alpha: 1) {
         didSet {
             gradientLayer.colors = [defaultCardColor.cgColor, defaultCardColor.cgColor]
@@ -117,7 +120,6 @@ public class CreditCardFormView : UIView {
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
-        createViews()
     }
     
     required public init?(coder aDecoder: NSCoder) {
@@ -140,7 +142,7 @@ public class CreditCardFormView : UIView {
         
         createCardView()
         createFrontView()
-        createbackImage()
+        createBackImage()
         createBrandImageView()
         createCardNumber()
         createCardHolder()
@@ -153,19 +155,26 @@ public class CreditCardFormView : UIView {
         createCVC()
     }
     
-    private func setGradientBackground(v: UIView, top: CGColor, bottom: CGColor) {
+    public func addGradient() {
+        // call this in parent's viewDidLayoutSubviews
+        self.setGradientBackground(view: frontView, top: defaultCardColor.cgColor, bottom: defaultCardColor.cgColor)
+    }
+    
+    private func setGradientBackground(view: UIView, top: CGColor, bottom: CGColor) {
         let colorTop =  top
         let colorBottom = bottom
         gradientLayer.colors = [ colorTop, colorBottom]
         gradientLayer.locations = [ 0.0, 1.0]
-        gradientLayer.frame = v.bounds
+        gradientLayer.frame = view.bounds
         backView.backgroundColor = defaultCardColor
-        v.layer.addSublayer(gradientLayer)
+        view.layer.insertSublayer(gradientLayer, at: 0)
     }
     
     private func createCardView() {
         cardView.translatesAutoresizingMaskIntoConstraints = false
         cardView.layer.cornerRadius = 6
+        cardView.center = CGPoint(x: self.bounds.midX, y: self.bounds.midY)
+        cardView.autoresizingMask = [UIView.AutoresizingMask.flexibleLeftMargin, UIView.AutoresizingMask.flexibleRightMargin, UIView.AutoresizingMask.flexibleTopMargin, UIView.AutoresizingMask.flexibleBottomMargin]
         cardView.backgroundColor = .clear
         self.addSubview(cardView)
         //CardView
@@ -200,7 +209,9 @@ public class CreditCardFormView : UIView {
         frontView.center = CGPoint(x: self.bounds.midX, y: self.bounds.midY)
         frontView.autoresizingMask = [UIView.AutoresizingMask.flexibleLeftMargin, UIView.AutoresizingMask.flexibleRightMargin, UIView.AutoresizingMask.flexibleTopMargin, UIView.AutoresizingMask.flexibleBottomMargin]
         cardView.addSubview(frontView)
-        setGradientBackground(v: frontView, top: defaultCardColor.cgColor, bottom: defaultCardColor.cgColor)
+        if !handleLayerManually {
+            setGradientBackground(view: frontView, top: defaultCardColor.cgColor, bottom: defaultCardColor.cgColor)
+        }
         
         self.addConstraint(NSLayoutConstraint(item: frontView, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1.0, constant: 0.0));
         
@@ -211,7 +222,7 @@ public class CreditCardFormView : UIView {
         self.addConstraint(NSLayoutConstraint(item: frontView, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self, attribute: NSLayoutConstraint.Attribute.height, multiplier: 1.0, constant: 0.0));
     }
     
-    private func createbackImage() {
+    private func createBackImage() {
         backImage.translatesAutoresizingMaskIntoConstraints = false
         backImage.image = UIImage(named: "back.jpg")
         backImage.contentMode = UIView.ContentMode.scaleAspectFill
