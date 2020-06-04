@@ -36,9 +36,6 @@ public class CreditCardFormView : UIView {
     public var colors = [String : [UIColor]]()
     
     @IBInspectable
-    public var handleLayerManually: Bool = false
-    
-    @IBInspectable
     public var defaultCardColor: UIColor = UIColor.hexStr(hexStr: "363434", alpha: 1) {
         didSet {
             gradientLayer.colors = [defaultCardColor.cgColor, defaultCardColor.cgColor]
@@ -126,9 +123,14 @@ public class CreditCardFormView : UIView {
         super.init(coder: aDecoder)
     }
     
+    private var loaded: Bool = false
     public override func layoutSubviews() {
         super.layoutSubviews()
-        createViews()
+        
+        if !loaded {
+            loaded = true
+            createViews()
+        }
     }
     
     private func createViews() {
@@ -167,6 +169,10 @@ public class CreditCardFormView : UIView {
         gradientLayer.locations = [ 0.0, 1.0]
         gradientLayer.frame = view.bounds
         backView.backgroundColor = defaultCardColor
+        
+        if let sublayers = view.layer.sublayers, sublayers.contains(gradientLayer) {
+            gradientLayer.removeFromSuperlayer()
+        }
         view.layer.insertSublayer(gradientLayer, at: 0)
     }
     
@@ -209,9 +215,7 @@ public class CreditCardFormView : UIView {
         frontView.center = CGPoint(x: self.bounds.midX, y: self.bounds.midY)
         frontView.autoresizingMask = [UIView.AutoresizingMask.flexibleLeftMargin, UIView.AutoresizingMask.flexibleRightMargin, UIView.AutoresizingMask.flexibleTopMargin, UIView.AutoresizingMask.flexibleBottomMargin]
         cardView.addSubview(frontView)
-        if !handleLayerManually {
-            setGradientBackground(view: frontView, top: defaultCardColor.cgColor, bottom: defaultCardColor.cgColor)
-        }
+        setGradientBackground(view: frontView, top: defaultCardColor.cgColor, bottom: defaultCardColor.cgColor)
         
         self.addConstraint(NSLayoutConstraint(item: frontView, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1.0, constant: 0.0));
         
@@ -377,8 +381,9 @@ public class CreditCardFormView : UIView {
     }
     
     private func setType(colors: [UIColor], alpha: CGFloat, back: UIColor) {
-        UIView.animate(withDuration: 2, animations: { () -> Void in
+        UIView.animate(withDuration: 2, animations: { [unowned self] () -> Void in
             self.gradientLayer.colors = [colors[0].cgColor, colors[1].cgColor]
+            self.addGradient()
         })
         self.backView.backgroundColor = back
         self.chipImg.alpha = alpha
